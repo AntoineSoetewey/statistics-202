@@ -1,2 +1,2 @@
 # statistics-202
-Simple linear regression
+Shiny app for simple linear regression. More information: https://antoinesoetewey.shinyapps.io/statistics-202/
