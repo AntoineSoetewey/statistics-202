@@ -10,6 +10,8 @@
 library(shiny)
 library(ggplot2)
 library(plotly)
+library(rmarkdown)
+library(knitr)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -21,13 +23,22 @@ ui <- fluidPage(
 
     sidebarLayout(
         sidebarPanel(
+            tags$b("Data:"),
             textInput("x", "x", value = "80, 90, 80, 70, 77, 65", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
             textInput("y", "y", value = "850, 1000, 750, 650, 850, 675", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
             hr(),
+            tags$b("Plot:"),
             checkboxInput("se", "Add confidence interval around the regression line", TRUE),
+            textInput("xlab", label = "Axis labels:", value = "x", placeholder = "x label"),
+            textInput("ylab", label = NULL, value = "y", placeholder = "y label"),
             hr(),
             # textInput("pred", "Prediction of y when x = ", value = "100, 110, 100, 90, 97, 85", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
             # hr(),
+            radioButtons('format', 'Download report:', c('HTML', 'PDF', 'Word'),
+                         inline = TRUE),
+            checkboxInput("echo", "Show code in report?", FALSE),
+            downloadButton('downloadReport'),
+            hr(),
             HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-202/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-202/blob/master/app.R">code</a>. Back to <a href="https://www.antoinesoetewey.com/">www.antoinesoetewey.com</a>.</p>'),
         ),
 
@@ -125,9 +136,36 @@ server <- function(input, output) {
         p <- ggplot(dat, aes(x = x, y = y)) +
             geom_point() +
             stat_smooth(method = "lm", se = input$se) +
+            ylab(input$ylab) +
+            xlab(input$xlab) +
             theme_minimal()
         ggplotly(p)
     })
+    
+    output$downloadReport <- downloadHandler(
+        filename = function() {
+            paste('my-report', sep = '.', switch(
+                input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+            ))
+        },
+        
+        content = function(file) {
+            src <- normalizePath('report.Rmd')
+            
+            # temporarily switch to the temp dir, in case you do not have write
+            # permission to the current working directory
+            owd <- setwd(tempdir())
+            on.exit(setwd(owd))
+            file.copy(src, 'report.Rmd', overwrite = TRUE)
+            
+            library(rmarkdown)
+            out <- render('report.Rmd', switch(
+                input$format,
+                PDF = pdf_document(), HTML = html_document(), Word = word_document()
+            ))
+            file.rename(out, file)
+        }
+    )
 }
 
 # Run the application 
