@@ -1,7 +1,7 @@
 ---
 title: "Simple linear regression"
 # subtitle: "Sous-titre"
-# author: "Auteur"
+author: "[Antoine Soetewey](https://www.antoinesoetewey.com/)"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 # toc: true
 ---
@@ -77,5 +77,15 @@ ggplot(dat, aes(x = x, y = y)) +
             ylab(input$ylab) +
             xlab(input$xlab) +
             theme_minimal()
+```
+
+# Interpretation
+
+```{r, echo = input$echo}
+withMathJax(
+            paste0("For a (hypothetical) value of ", input$xlab, " = 0, ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
+            br(),
+            paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases by ", " decreases by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"), ".")
+        )
 ```
 

@@ -40,6 +40,12 @@ ui <- fluidPage(
             downloadButton('downloadReport'),
             hr(),
             HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-202/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-202/blob/master/app.R">code</a>. Back to <a href="https://www.antoinesoetewey.com/">www.antoinesoetewey.com</a>.</p>'),
+            hr(),
+            HTML('<a rel="license" href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank"><img alt="Licence Creative Commons" style="border-width:0"
+        src="http://i.creativecommons.org/l/by/2.0/be/80x15.png"/></a> Cette oeuvre de <span xmlns:cc="http://creativecommons.org/ns#"
+        property="cc:attributionName"><font face="Courier">RShiny@UCLouvain</font></span> est mise à disposition selon les termes de la <a rel="license"
+        href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank">licence Creative Commons Attribution 2.0 Belgique</a>. Détails sur l\'utilisation de cette ressource sur <a href="http://sites.uclouvain.be/RShiny"
+        target="_blank"><font face="Courier">RShiny@UCLouvain</font></a>. Code source disponible sur <a href="https://github.com/AntoineSoetewey/statistics-202/blob/master/app.R" target="_blank">GitHub</a>.')
         ),
 
         mainPanel(
@@ -57,6 +63,9 @@ ui <- fluidPage(
             tags$b("Regression plot:"),
             uiOutput("results"),
             plotlyOutput("plot"),
+            br(),
+            tags$b("Interpretation:"),
+            uiOutput("interpretation"),
             br(),
             br()
         )
@@ -125,6 +134,17 @@ server <- function(input, output) {
                    ", \\( \\beta_0 = \\) ", round(fit$coef[[1]], 3),
                    ", \\( \\beta_1 = \\) ", round(fit$coef[[2]], 3),
                    ", P-value ", "\\( = \\) ", signif(summary(fit)$coef[2,4], 3))
+        )
+    })
+    
+    output$interpretation <- renderUI({
+        y <- extract(input$y)
+        x <- extract(input$x)
+        fit <- lm(y ~ x)
+        withMathJax(
+            paste0("For a (hypothetical) value of ", input$xlab, " = 0, ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
+            br(),
+            paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases by ", " decreases by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"), ".")
         )
     })
     
