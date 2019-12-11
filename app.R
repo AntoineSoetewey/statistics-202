@@ -141,11 +141,29 @@ server <- function(input, output) {
         y <- extract(input$y)
         x <- extract(input$x)
         fit <- lm(y ~ x)
-        withMathJax(
-            paste0("For a (hypothetical) value of ", input$xlab, " = 0, ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
-            br(),
-            paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases by ", " decreases by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"), ".")
-        )
+            if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] < 0.05) {
+                withMathJax(
+                    paste0("For a (hypothetical) value of ", input$xlab, " = 0, ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
+                    br(),
+                    paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases by ", " decreases by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"), ".")
+                )
+            } else if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] >= 0.05) {
+                withMathJax(
+                    paste0("For a (hypothetical) value of ", input$xlab, " = 0, ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
+                    br(),
+                    paste0("\\( \\beta_1 \\)", " is not interpretable as the p-value is greater than or equal to 0.05.")
+                )
+            } else if (summary(fit)$coefficients[1, 4] >= 0.05 & summary(fit)$coefficients[2, 4] < 0.05) {
+                withMathJax(
+                    paste0("\\( \\beta_0 \\)", " is not interpretable as the p-value is greater than or equal to 0.05."),
+                    br(),
+                    paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases by ", " decreases by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"), ".")
+                )
+            } else {
+                withMathJax(
+                    paste0("\\( \\beta_0 \\)", " and ", "\\( \\beta_1 \\)", " are not interpretable as the p-values are greater than or equal to 0.05.")
+                )
+            }
     })
     
     output$plot <- renderPlotly({
