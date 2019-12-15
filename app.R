@@ -24,8 +24,8 @@ ui <- fluidPage(
     sidebarLayout(
         sidebarPanel(
             tags$b("Data:"),
-            textInput("x", "x", value = "80, 90, 80, 70, 77, 65", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
-            textInput("y", "y", value = "850, 1000, 750, 650, 850, 675", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
+            textInput("x", "x", value = "90, 100, 90, 80, 87, 75", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
+            textInput("y", "y", value = "950, 1100, 850, 750, 950, 775", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
             hr(),
             tags$b("Plot:"),
             checkboxInput("se", "Add confidence interval around the regression line", TRUE),
