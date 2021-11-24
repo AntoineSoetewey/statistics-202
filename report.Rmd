@@ -1,7 +1,7 @@
 ---
 title: "Simple linear regression"
 # subtitle: "Sous-titre"
-author: "[Antoine Soetewey](https://www.antoinesoetewey.com/)"
+author: "[Antoine Soetewey](https://antoinesoetewey.com/)"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 # toc: true
 ---

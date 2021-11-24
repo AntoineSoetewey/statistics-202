@@ -19,7 +19,7 @@ ui <- fluidPage(
 
   # Application title
   titlePanel("Statistics 202 - Simple linear regression"),
-  h4(tags$a(href = "https://www.antoinesoetewey.com/", "Antoine Soetewey")),
+  h4(tags$a(href = "https://antoinesoetewey.com/", "Antoine Soetewey")),
   withMathJax(),
 
   sidebarLayout(
@@ -41,7 +41,7 @@ ui <- fluidPage(
       checkboxInput("echo", "Show code in report?", FALSE),
       downloadButton("downloadReport"),
       hr(),
-      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-202/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-202">code</a>. Back to <a href="https://www.antoinesoetewey.com/">antoinesoetewey.com</a> or <a href="https://statsandr.com/">statsandr.com</a>.</p>'),
+      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-202/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-202">code</a>. Back to <a href="https://antoinesoetewey.com/">antoinesoetewey.com</a> or <a href="https://statsandr.com/">statsandr.com</a>.</p>'),
       hr(),
       HTML('<a rel="license" href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank"><img alt="Licence Creative Commons" style="border-width:0"
         src="http://i.creativecommons.org/l/by/2.0/be/80x15.png"/></a> This work of <span xmlns:cc="http://creativecommons.org/ns#"
