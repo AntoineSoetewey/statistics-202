@@ -4,6 +4,8 @@ library(plotly)
 library(rmarkdown)
 library(knitr)
 library(pander)
+set.seed(123)
+n <- 100
 
 # Define UI for application that draws a histogram
 ui <- shiny::tagList(
@@ -42,7 +44,7 @@ ui <- shiny::tagList(
         sidebarPanel(
           tags$b("Data:"),
           textInput("x", "x", value = "90, 100, 90, 80, 87, 75", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
-          textInput("y", "y", value = "950, 1100, 850, 750, 950, 775", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
+          textInput("y", "y", value = "950, 1000, 850, 750, 950, 775", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
           hr(),
           tags$b("Plot:"),
           checkboxInput("se", "Add confidence interval around the regression line", TRUE),
@@ -51,8 +53,10 @@ ui <- shiny::tagList(
           hr(),
           # textInput("pred", "Prediction of y when x = ", value = "100, 110, 100, 90, 97, 85", placeholder = "Enter values separated by a comma with decimals as points, e.g. 4.2, 4.4, 5, 5.03, etc."),
           # hr(),
-          radioButtons("format", "Download report:", c("HTML", "PDF", "Word"),
-                       inline = TRUE
+          # radioButtons("format", "Download report:", c("HTML", "PDF", "Word"),
+          #              inline = TRUE
+          radioButtons("format", "Download report:", c("HTML"),
+                       inline = TRUE             
           ),
           checkboxInput("echo", "Show code in report?", FALSE),
           downloadButton("downloadReport")
@@ -61,22 +65,35 @@ ui <- shiny::tagList(
         mainPanel(
           br(),
           tags$b("Data:"),
+          br(),
+          br(),
           DT::dataTableOutput("tbl"),
           br(),
           uiOutput("data"),
           br(),
           tags$b("Compute parameters by hand:"),
+          br(),
+          br(),
           uiOutput("by_hand"),
           br(),
           tags$b("Compute parameters in R:"),
+          br(),
+          br(),
           verbatimTextOutput("summary"),
           br(),
           tags$b("Regression plot:"),
+          br(),
+          br(),
           uiOutput("results"),
           plotlyOutput("plot"),
           br(),
           tags$b("Interpretation:"),
+          br(),
+          br(),
           uiOutput("interpretation"),
+          br(),
+          tags$b("Assumptions:"),
+          plotOutput("assumptions"),
           br(),
           br()
         )
@@ -174,7 +191,7 @@ server <- function(input, output) {
     fit <- lm(y ~ x)
     if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] < 0.05) {
       withMathJax(
-        paste0("(Make sure the assumptions for linear regression (independance, linearity, normality and homoscedasticity) are met before interpreting the coefficients.)"),
+        paste0("(Make sure the assumptions for linear regression (independance, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
         br(),
         paste0("For a (hypothetical) value of ", input$xlab, " = 0, the mean of ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
         br(),
@@ -182,7 +199,7 @@ server <- function(input, output) {
       )
     } else if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] >= 0.05) {
       withMathJax(
-        paste0("(Make sure the assumptions for linear regression (independance, linearity, normality and homoscedasticity) are met before interpreting the coefficients.)"),
+        paste0("(Make sure the assumptions for linear regression (independance, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
         br(),
         paste0("For a (hypothetical) value of ", input$xlab, " = 0, the mean of ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
         br(),
@@ -190,7 +207,7 @@ server <- function(input, output) {
       )
     } else if (summary(fit)$coefficients[1, 4] >= 0.05 & summary(fit)$coefficients[2, 4] < 0.05) {
       withMathJax(
-        paste0("(Make sure the assumptions for linear regression (independance, linearity, normality and homoscedasticity) are met before interpreting the coefficients.)"),
+        paste0("(Make sure the assumptions for linear regression (independance, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
         br(),
         paste0("\\( \\beta_0 \\)", " is not significantly different from 0 (p-value = ", round(summary(fit)$coefficients[1, 4], 3), ") so when ", input$xlab, " = 0, the mean of ", input$ylab, " is not significantly different from 0."),
         br(),
@@ -198,11 +215,19 @@ server <- function(input, output) {
       )
     } else {
       withMathJax(
-        paste0("(Make sure the assumptions for linear regression (independance, linearity, normality and homoscedasticity) are met before interpreting the coefficients.)"),
+        paste0("(Make sure the assumptions for linear regression (independance, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
         br(),
         paste0("\\( \\beta_0 \\)", " and ", "\\( \\beta_1 \\)", " are not significantly different from 0 (p-values = ", round(summary(fit)$coefficients[1, 4], 3), " and ", round(summary(fit)$coefficients[2, 4], 3), ", respectively) so the mean of ", input$ylab, " is not significantly different from 0.")
       )
     }
+  })
+  
+  output$assumptions <- renderPlot({
+    y <- extract(input$y)
+    x <- extract(input$x)
+    fit <- lm(y ~ x)
+    par(mfrow = c(2, 2))
+    plot(fit, which = c(1:3, 5))
   })
 
   output$plot <- renderPlotly({
@@ -222,7 +247,8 @@ server <- function(input, output) {
   output$downloadReport <- downloadHandler(
     filename = function() {
       paste("my-report", sep = ".", switch(
-        input$format, PDF = "pdf", HTML = "html", Word = "docx"
+        # input$format, PDF = "pdf", HTML = "html", Word = "docx"
+        input$format, HTML = "html"
       ))
     },
 
@@ -238,7 +264,8 @@ server <- function(input, output) {
       library(rmarkdown)
       out <- render("report.Rmd", switch(
         input$format,
-        PDF = pdf_document(), HTML = html_document(), Word = word_document()
+        # PDF = pdf_document(), HTML = html_document(), Word = word_document()
+        HTML = html_document()
       ))
       file.rename(out, file)
     }

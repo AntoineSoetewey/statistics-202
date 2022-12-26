@@ -19,7 +19,7 @@ extract <- function(text) {
 y <- extract(input$y)
 x <- extract(input$x)
 dat <- data.frame(x, y)
-kable(dat)
+pander(dat)
 
 if (anyNA(x) | length(x) < 2 | anyNA(y) | length(y) < 2) {
   "Invalid input or not enough observations"
@@ -64,12 +64,12 @@ withMathJax(paste0(
 # Compute parameters in R
 
 ```{r, echo = input$echo}
-summary(fit)
+pander(summary(fit))
 ```
 
 # Regression plot
 
-```{r, echo = input$echo, warning = FALSE}
+```{r, echo = input$echo, warning = FALSE, message = FALSE}
 withMathJax(paste0(
   "Adj. \\( R^2 = \\) ", round(summary(fit)$adj.r.squared, 3),
   ", \\( \\beta_0 = \\) ", round(fit$coef[[1]], 3),
@@ -78,7 +78,7 @@ withMathJax(paste0(
 ))
 ```
 
-```{r, echo = input$echo}
+```{r, echo = input$echo, warning = FALSE, message = FALSE}
 ggplot(dat, aes(x = x, y = y)) +
   geom_point() +
   stat_smooth(method = "lm", se = input$se) +
@@ -92,7 +92,7 @@ ggplot(dat, aes(x = x, y = y)) +
 ```{r, echo = input$echo, warning = FALSE}
 if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] < 0.05) {
   withMathJax(
-    paste0("(Make sure the assumptions for linear regression (independance, linearity, normality and homoscedasticity) are met before interpreting the coefficients.)"),
+    paste0("(Make sure the assumptions for linear regression (independance, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
     br(),
     paste0("For a (hypothetical) value of ", input$xlab, " = 0, the mean of ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
     br(),
@@ -100,7 +100,7 @@ if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] < 0
   )
 } else if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] >= 0.05) {
   withMathJax(
-    paste0("(Make sure the assumptions for linear regression (independance, linearity, normality and homoscedasticity) are met before interpreting the coefficients.)"),
+    paste0("(Make sure the assumptions for linear regression (independance, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
     br(),
     paste0("For a (hypothetical) value of ", input$xlab, " = 0, the mean of ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
     br(),
@@ -108,7 +108,7 @@ if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] < 0
   )
 } else if (summary(fit)$coefficients[1, 4] >= 0.05 & summary(fit)$coefficients[2, 4] < 0.05) {
   withMathJax(
-    paste0("(Make sure the assumptions for linear regression (independance, linearity, normality and homoscedasticity) are met before interpreting the coefficients.)"),
+    paste0("(Make sure the assumptions for linear regression (independance, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
     br(),
     paste0("\\( \\beta_0 \\)", " is not significantly different from 0 (p-value = ", round(summary(fit)$coefficients[1, 4], 3), ") so when ", input$xlab, " = 0, the mean of ", input$ylab, " is not significantly different from 0."),
     br(),
@@ -116,10 +116,18 @@ if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] < 0
   )
 } else {
   withMathJax(
-    paste0("(Make sure the assumptions for linear regression (independance, linearity, normality and homoscedasticity) are met before interpreting the coefficients.)"),
+    paste0("(Make sure the assumptions for linear regression (independance, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
     br(),
     paste0("\\( \\beta_0 \\)", " and ", "\\( \\beta_1 \\)", " are not significantly different from 0 (p-values = ", round(summary(fit)$coefficients[1, 4], 3), " and ", round(summary(fit)$coefficients[2, 4], 3), ", respectively) so the mean of ", input$ylab, " is not significantly different from 0.")
   )
 }
+```
+
+# Assumptions
+
+```{r, echo = input$echo}
+par(mfrow = c(2, 2))
+
+plot(fit, which = c(1:3, 5))
 ```
 
