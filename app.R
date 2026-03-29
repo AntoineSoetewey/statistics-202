@@ -81,7 +81,7 @@ ui <- shiny::tagList(
           br(),
           uiOutput("by_hand"),
           br(),
-          tags$b("Compute parameters in R:"),
+          tags$b("Results in R:"),
           br(),
           br(),
           verbatimTextOutput("summary"),
