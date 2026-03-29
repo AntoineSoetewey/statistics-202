@@ -26,14 +26,6 @@ ui <- shiny::tagList(
       titlePanel(
         title = "Statistics 202 - Simple linear regression",
         windowTitle = "Simple linear regression"
-      ),
-
-      tags$h4(
-        tags$a(
-          href = "https://antoinesoetewey.com/",
-          target = "_blank",
-          "Antoine Soetewey"
-        )
       )
     ),
 
