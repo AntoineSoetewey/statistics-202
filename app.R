@@ -4,6 +4,8 @@ library(plotly)
 library(rmarkdown)
 library(knitr)
 library(pander)
+library(performance)
+library(see)
 set.seed(123)
 n <- 100
 
@@ -92,9 +94,12 @@ ui <- shiny::tagList(
           br(),
           uiOutput("interpretation"),
           br(),
-          tags$b("Assumptions:"),
-          plotOutput("assumptions"),
-          br(),
+          tags$details(
+            tags$summary(tags$b("Assumptions"), " (click to show/hide)"),
+            br(),
+            plotOutput("assumptions", height = "800px"),
+            br()
+          ),
           br()
         )
       )
@@ -226,8 +231,7 @@ server <- function(input, output) {
     y <- extract(input$y)
     x <- extract(input$x)
     fit <- lm(y ~ x)
-    par(mfrow = c(2, 2))
-    plot(fit, which = c(1:3, 5))
+    plot(performance::check_model(fit))
   })
 
   output$plot <- renderPlotly({
