@@ -21,8 +21,8 @@ x <- extract(input$x)
 dat <- data.frame(x, y)
 pander(dat)
 
-if (anyNA(x) | length(x) < 2 | anyNA(y) | length(y) < 2) {
-  "Invalid input or not enough observations"
+if (anyNA(x) || length(x) < 3 || anyNA(y) || length(y) < 3) {
+  "Invalid input or not enough observations (at least 3 required)"
 } else if (length(x) != length(y)) {
   "Number of observations must be equal for x and y"
 } else {
@@ -57,7 +57,10 @@ withMathJax(paste0(
 ```{r, echo = input$echo}
 withMathJax(paste0(
   "\\( \\Rightarrow y = \\hat{\\beta}_0 + \\hat{\\beta}_1 x = \\) ",
-  round(fit$coef[[1]], 3), " + ", round(fit$coef[[2]], 3), "\\( x \\)"
+  round(fit$coef[[1]], 3),
+  ifelse(round(fit$coef[[2]], 3) >= 0, " + ", " - "),
+  abs(round(fit$coef[[2]], 3)),
+  "\\( x \\)"
 ))
 ```
 
@@ -81,7 +84,7 @@ withMathJax(paste0(
 ```{r, echo = input$echo, warning = FALSE, message = FALSE}
 ggplot(dat, aes(x = x, y = y)) +
   geom_point() +
-  stat_smooth(method = "lm", se = input$se) +
+  stat_smooth(method = "lm", formula = y ~ x, se = input$se) +
   ylab(input$ylab) +
   xlab(input$xlab) +
   theme_minimal()
@@ -90,15 +93,15 @@ ggplot(dat, aes(x = x, y = y)) +
 # Interpretation
 
 ```{r, echo = input$echo, warning = FALSE}
-if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] < 0.05) {
+if (summary(fit)$coefficients[1, 4] < 0.05 && summary(fit)$coefficients[2, 4] < 0.05) {
   withMathJax(
     paste0("(Make sure the assumptions for linear regression (independence, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
     br(),
     paste0("For a (hypothetical) value of ", input$xlab, " = 0, the mean of ", input$ylab, " = ", round(fit$coef[[1]], 3), "."),
     br(),
-    paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases (on average) by ", " decreases (on average) by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"), ".")
+    paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases (on average) by ", " decreases (on average) by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) == 1, " unit", " units"), ".")
   )
-} else if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] >= 0.05) {
+} else if (summary(fit)$coefficients[1, 4] < 0.05 && summary(fit)$coefficients[2, 4] >= 0.05) {
   withMathJax(
     paste0("(Make sure the assumptions for linear regression (independence, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
     br(),
@@ -106,19 +109,19 @@ if (summary(fit)$coefficients[1, 4] < 0.05 & summary(fit)$coefficients[2, 4] < 0
     br(),
     paste0("\\( \\beta_1 \\)", " is not significantly different from 0 (p-value = ", round(summary(fit)$coefficients[2, 4], 3), ") so there is no significant relationship between ", input$xlab, " and ", input$ylab, ".")
   )
-} else if (summary(fit)$coefficients[1, 4] >= 0.05 & summary(fit)$coefficients[2, 4] < 0.05) {
+} else if (summary(fit)$coefficients[1, 4] >= 0.05 && summary(fit)$coefficients[2, 4] < 0.05) {
   withMathJax(
     paste0("(Make sure the assumptions for linear regression (independence, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
     br(),
     paste0("\\( \\beta_0 \\)", " is not significantly different from 0 (p-value = ", round(summary(fit)$coefficients[1, 4], 3), ") so when ", input$xlab, " = 0, the mean of ", input$ylab, " is not significantly different from 0."),
     br(),
-    paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases (on average) by ", " decreases (on average) by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"), ".")
+    paste0("For an increase of one unit of ", input$xlab, ", ", input$ylab, ifelse(round(fit$coef[[2]], 3) >= 0, " increases (on average) by ", " decreases (on average) by "), abs(round(fit$coef[[2]], 3)), ifelse(abs(round(fit$coef[[2]], 3)) == 1, " unit", " units"), ".")
   )
 } else {
   withMathJax(
     paste0("(Make sure the assumptions for linear regression (independence, linearity, homoscedasticity, outliers and normality) are met before interpreting the coefficients.)"),
     br(),
-    paste0("\\( \\beta_0 \\)", " and ", "\\( \\beta_1 \\)", " are not significantly different from 0 (p-values = ", round(summary(fit)$coefficients[1, 4], 3), " and ", round(summary(fit)$coefficients[2, 4], 3), ", respectively) so the mean of ", input$ylab, " is not significantly different from 0.")
+    paste0("\\( \\beta_0 \\)", " and ", "\\( \\beta_1 \\)", " are not significantly different from 0 (p-values = ", round(summary(fit)$coefficients[1, 4], 3), " and ", round(summary(fit)$coefficients[2, 4], 3), ", respectively) so there is no significant linear relationship between ", input$xlab, " and ", input$ylab, ", and the mean of ", input$ylab, " is not significantly different from 0 (when ", input$xlab, " = 0).")
   )
 }
 ```

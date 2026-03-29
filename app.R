@@ -7,7 +7,7 @@ library(pander)
 library(performance)
 library(see)
 
-# Define UI for application that draws a histogram
+# Define UI for the simple linear regression application
 ui <- shiny::tagList(
   withMathJax(),
   includeCSS(path = "www/css/styles.css"),
@@ -29,7 +29,7 @@ ui <- shiny::tagList(
       )
     ),
 
-    # Sidebar with a slider input for number of bins
+    # Sidebar with inputs for data and plot options
     fluidPage(
       theme = shinythemes::shinytheme("flatly"),
       sidebarLayout(
@@ -131,12 +131,16 @@ server <- function(input, output) {
     y <- extract(input$y)
     validate(
       need(
-        !anyNA(x) && length(x) >= 2 && !anyNA(y) && length(y) >= 2,
-        "Invalid input or not enough observations"
+        !anyNA(x) && length(x) >= 3 && !anyNA(y) && length(y) >= 3,
+        "Invalid input or not enough observations (at least 3 required)"
       ),
       need(
         length(x) == length(y),
         "Number of observations must be equal for x and y"
+      ),
+      need(
+        length(unique(x)) > 1,
+        "x must contain more than one distinct value"
       )
     )
     list(x = x, y = y)
@@ -191,15 +195,14 @@ server <- function(input, output) {
       paste0(
         "\\( \\Rightarrow y = \\hat{\\beta}_0 + \\hat{\\beta}_1 x = \\) ",
         round(fit$coef[[1]], 3),
-        " + ",
-        round(fit$coef[[2]], 3),
+        ifelse(round(fit$coef[[2]], 3) >= 0, " + ", " - "),
+        abs(round(fit$coef[[2]], 3)),
         "\\( x \\)"
       )
     )
   })
 
   output$summary <- renderPrint({
-    vals()
     fit <- model_fit()
     summary(fit)
   })
@@ -224,7 +227,7 @@ server <- function(input, output) {
   output$interpretation <- renderUI({
     fit <- model_fit()
     if (
-      summary(fit)$coefficients[1, 4] < 0.05 &
+      summary(fit)$coefficients[1, 4] < 0.05 &&
         summary(fit)$coefficients[2, 4] < 0.05
     ) {
       withMathJax(
@@ -254,12 +257,12 @@ server <- function(input, output) {
             " decreases (on average) by "
           ),
           abs(round(fit$coef[[2]], 3)),
-          ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"),
+          ifelse(abs(round(fit$coef[[2]], 3)) == 1, " unit", " units"),
           "."
         )
       )
     } else if (
-      summary(fit)$coefficients[1, 4] < 0.05 &
+      summary(fit)$coefficients[1, 4] < 0.05 &&
         summary(fit)$coefficients[2, 4] >= 0.05
     ) {
       withMathJax(
@@ -290,7 +293,7 @@ server <- function(input, output) {
         )
       )
     } else if (
-      summary(fit)$coefficients[1, 4] >= 0.05 &
+      summary(fit)$coefficients[1, 4] >= 0.05 &&
         summary(fit)$coefficients[2, 4] < 0.05
     ) {
       withMathJax(
@@ -321,7 +324,7 @@ server <- function(input, output) {
             " decreases (on average) by "
           ),
           abs(round(fit$coef[[2]], 3)),
-          ifelse(abs(round(fit$coef[[2]], 3)) >= 2, " units", " unit"),
+          ifelse(abs(round(fit$coef[[2]], 3)) == 1, " unit", " units"),
           "."
         )
       )
@@ -340,9 +343,15 @@ server <- function(input, output) {
           round(summary(fit)$coefficients[1, 4], 3),
           " and ",
           round(summary(fit)$coefficients[2, 4], 3),
-          ", respectively) so the mean of ",
+          ", respectively) so there is no significant linear relationship between ",
+          input$xlab,
+          " and ",
           input$ylab,
-          " is not significantly different from 0."
+          ", and the mean of ",
+          input$ylab,
+          " is not significantly different from 0 (when ",
+          input$xlab,
+          " = 0)."
         )
       )
     }
@@ -359,7 +368,7 @@ server <- function(input, output) {
     dat <- data.frame(x = d$x, y = d$y)
     p <- ggplot(dat, aes(x = x, y = y)) +
       geom_point() +
-      stat_smooth(method = "lm", se = input$se) +
+      stat_smooth(method = "lm", formula = y ~ x, se = input$se) +
       ylab(input$ylab) +
       xlab(input$xlab) +
       theme_minimal()
@@ -387,7 +396,6 @@ server <- function(input, output) {
       on.exit(setwd(owd))
       file.copy(src, "report.Rmd", overwrite = TRUE)
 
-      library(rmarkdown)
       out <- render(
         "report.Rmd",
         switch(
@@ -395,7 +403,7 @@ server <- function(input, output) {
           HTML = html_document()
         )
       )
-      file.rename(out, file)
+      file.copy(out, file)
     }
   )
 }
