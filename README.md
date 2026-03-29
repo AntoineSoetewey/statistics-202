@@ -3,6 +3,7 @@
 A Shiny app for performing simple linear regression both by hand and in R.
 
 **Live app:** https://antoinesoetewey.shinyapps.io/statistics-202/
+
 **Blog post:** https://statsandr.com/blog/a-shiny-app-for-simple-linear-regression-by-hand-and-in-r/
 
 ---
