@@ -82,3 +82,7 @@ This app is part of a set of three complementary Shiny apps developed for studen
 - **statistics-101** — compute probabilities for the main probability distributions: https://github.com/AntoineSoetewey/statistics-101
 - **statistics-201** — perform statistical inference on mean(s), proportion(s), and variance(s): https://github.com/AntoineSoetewey/statistics-201
 - **statistics-202** — simple linear regression by hand: https://github.com/AntoineSoetewey/statistics-202 (this app)
+
+## License
+
+This project is licensed under the terms of the Creative Commons Attribution 4.0 International License (CC BY 4.0). See [LICENSE](LICENSE) for more details.
