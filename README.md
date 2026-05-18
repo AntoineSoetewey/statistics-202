@@ -85,4 +85,4 @@ This app is part of a set of three complementary Shiny apps developed for studen
 
 ## License
 
-This project is licensed under the terms of the Creative Commons Attribution 4.0 International License (CC BY 4.0). See [LICENSE](LICENSE) for more details.
+This project is licensed under the terms of the [MIT License](LICENSE).
