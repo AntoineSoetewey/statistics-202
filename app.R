@@ -7,6 +7,8 @@ library(pander)
 library(performance)
 library(see)
 
+source("helpers.R")
+
 # Define UI for the simple linear regression application
 ui <- shiny::tagList(
   withMathJax(),
@@ -131,12 +133,6 @@ ui <- shiny::tagList(
 )
 
 server <- function(input, output) {
-  extract <- function(text) {
-    text <- gsub(" ", "", text)
-    split <- strsplit(text, ",", fixed = FALSE)[[1]]
-    as.numeric(split)
-  }
-
   # Validated reactive data — all outputs share this single parse + validation
   vals <- reactive({
     x <- extract(input$x)
