@@ -137,20 +137,8 @@ server <- function(input, output) {
   vals <- reactive({
     x <- extract(input$x)
     y <- extract(input$y)
-    validate(
-      need(
-        !anyNA(x) && length(x) >= 3 && !anyNA(y) && length(y) >= 3,
-        "Invalid input or not enough observations (at least 3 required)"
-      ),
-      need(
-        length(x) == length(y),
-        "Number of observations must be equal for x and y"
-      ),
-      need(
-        length(unique(x)) > 1,
-        "x must contain more than one distinct value"
-      )
-    )
+    err <- validate_inputs(x, y)
+    validate(need(is.null(err), err))
     list(x = x, y = y)
   })
 

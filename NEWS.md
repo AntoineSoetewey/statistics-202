@@ -4,4 +4,4 @@
 
 First release, incorporating changes from the JOSE peer review.
 
-- Added unit tests covering the `extract` helper function and simple linear regression computations
+- Added unit tests covering the app-specific `extract` and `validate_inputs` helper functions
