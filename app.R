@@ -36,6 +36,19 @@ ui <- shiny::tagList(
       theme = shinythemes::shinytheme("flatly"),
       sidebarLayout(
         sidebarPanel(
+          tags$p(
+            tags$small(
+              "New to simple linear regression? See the ",
+              tags$a(
+                href = "https://statsandr.com/blog/a-shiny-app-for-simple-linear-regression-by-hand-and-in-r/",
+                target = "_blank",
+                "blog post"
+              ),
+              " for help on how to use this app."
+            )
+          ),
+          hr(),
+
           tags$b("Data:"),
           textInput(
             "x",
@@ -66,19 +79,7 @@ ui <- shiny::tagList(
           hr(),
           radioButtons("format", "Download report:", c("HTML"), inline = TRUE),
           checkboxInput("echo", "Show code in report?", FALSE),
-          downloadButton("downloadReport"),
-          hr(),
-          tags$p(
-            tags$small(
-              "New to simple linear regression? See the ",
-              tags$a(
-                href = "https://statsandr.com/blog/a-shiny-app-for-simple-linear-regression-by-hand-and-in-r/",
-                target = "_blank",
-                "blog post"
-              ),
-              " for help on how to use this app."
-            )
-          )
+          downloadButton("downloadReport")
         ),
 
         mainPanel(
