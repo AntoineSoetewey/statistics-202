@@ -84,7 +84,7 @@ ui <- shiny::tagList(
 
         mainPanel(
           br(),
-          tags$b("Data:"),
+          tags$b("Data Download:"),
           br(),
           br(),
           DT::dataTableOutput("tbl"),
